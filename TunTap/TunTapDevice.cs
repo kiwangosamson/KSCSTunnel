@@ -5,11 +5,7 @@ namespace TA.SharpTunnel.TunTap
 {
     public abstract class TunTapDevice : IDisposable
     {
-        public enum DeviceType : int
-        {
-            TUN = 1,
-            TAP = 2
-        }
+        public enum DeviceType : int { TUN = 1, TAP }
 
         public abstract DeviceType Type { get; }
         public abstract Stream Stream { get; }

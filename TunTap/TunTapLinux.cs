@@ -12,7 +12,6 @@ namespace TA.SharpTunnel.TunTap
         private const ushort IFF_TUN = 1;
         private const ushort IFF_TAP = 2;
         private const ushort IFF_NO_PI = 0x1000;
-        private const ushort IFF_PERSIST = 0x0800;
 
         //Returns 0 on success, other value on error
         //dev can be null, will be set to the actual if name

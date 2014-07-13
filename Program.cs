@@ -11,7 +11,7 @@ namespace TA.SharpTunnel
             using (TunTapLinux dev = new TunTapLinux(TunTapDevice.DeviceType.TUN, false))
             {
                 dev.Open();
-                Console.WriteLine("Device opened: {0}", dev.Device);
+                Console.WriteLine(dev.Device + " opened");
 
                 while (true)
                 {
