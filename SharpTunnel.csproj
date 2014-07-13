@@ -40,9 +40,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Encryption\AES.cs" />
-    <Compile Include="Encryption\TripleDES.cs" />
-    <Compile Include="Encryption\SymmetricCipher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TunTap\TunTapDevice.cs" />
