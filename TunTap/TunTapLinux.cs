@@ -15,11 +15,13 @@ namespace TA.SharpTunnel.TunTap
         private const ushort IFF_PERSIST = 0x0800;
 
         //Returns 0 on success, other value on error
-        //FD contains the tun/tap file descriptor
-        //errcode contains the native error code if failed
-        //dev contains the device name, e.g. tun0
+        //dev can be null, will be set to the actual if name
+        //fd_or_errcode contains the fd on success, errcode on failure
         [DllImport("./tunhelper.so", CharSet = CharSet.Ansi, SetLastError = false)]
         private static extern int tun_alloc(StringBuilder dev, int flags, out int fd_or_errcode);
+
+        [DllImport("./tunhelper.so", CharSet = CharSet.Ansi, SetLastError = true)]
+        private static extern int tun_set_persist(int fd, bool persist);
 
         private DeviceType _Type;
         private UnixStream _Stream;
@@ -32,7 +34,7 @@ namespace TA.SharpTunnel.TunTap
         public bool Persist { get { return _Persist; } }
         public string Device { get { return _Device; } }
 
-        public TunTapLinux(DeviceType Type, bool Persist, string Device = null)
+        public TunTapLinux(DeviceType Type, bool Persist = false, string Device = null)
         {
             if (Environment.OSVersion.Platform != PlatformID.Unix)
                 throw new PlatformNotSupportedException("Only linux is supported");
@@ -70,24 +72,25 @@ namespace TA.SharpTunnel.TunTap
             else if (_Type == DeviceType.TAP)
                 flags |= IFF_TAP;
             else throw new Exception("Unknwo device type");
-            if (_Persist)
-                flags |= IFF_PERSIST;
 
             int fd_or_errcode;
             int errno = tun_alloc(dev_sb, flags, out fd_or_errcode);
 
-            switch (errno)
-            {
-                case 0:
-                    _Device = dev_sb.ToString();
-                    _Stream = new UnixStream(fd_or_errcode);
-                    _Opened = true;
-                    return;
+            if (errno != 0)
+                switch (errno)
+                {
+                    case 1: throw new UnixIOException("Can't open /dev/net/tun (" + fd_or_errcode + ")");
+                    case 2: throw new UnixIOException("ioctl(TUNSETIFF) failed (" + fd_or_errcode + ")");
+                    default: throw new Exception("Unknown error (" + fd_or_errcode + ")");
+                }
 
-                case 1: throw new UnixIOException("Can't open /dev/net/tun (" + fd_or_errcode + ")");
-                case 2: throw new UnixIOException("ioctl(TUNSETIFF) failed (" + fd_or_errcode + ")");
-                default: throw new Exception("Unknown error (" + fd_or_errcode + ")");
-            }
+            int err = tun_set_persist(fd_or_errcode, _Persist);
+            if (err != 0)
+                throw new UnixIOException("ioctl(TUNSETPERSIST) failed (" + err + ")");
+
+            _Device = dev_sb.ToString();
+            _Stream = new UnixStream(fd_or_errcode);
+            _Opened = true;
         }
 
         public override void Close()

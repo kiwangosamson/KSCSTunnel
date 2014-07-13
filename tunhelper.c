@@ -40,6 +40,14 @@ extern int tun_alloc(char* dev, int flags, int* fd_or_errcode)
     return 0;
 }
 
+extern int tun_set_persist(int fd, int persist)
+{
+    if (persist != 0)
+        persist = 1;
+
+    return ioctl(fd, TUNSETPERSIST, persist);
+}
+
 #ifdef __cplusplus
 }
 #endif
