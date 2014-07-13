@@ -1,6 +1,6 @@
 using System;
 
-namespace TA.SharpTunnel.Crypto
+namespace TA.SharpTunnel.Encryption
 {
     public abstract class SymmetricCipher : IDisposable
     {

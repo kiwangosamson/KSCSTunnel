@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace TA.SharpTunnel.Crypto
+namespace TA.SharpTunnel.Encryption
 {
     //TODO Add own AES algorythm because Microsoft -> NSA
     public class AES : SymmetricCipher
