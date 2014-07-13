@@ -17,6 +17,10 @@ namespace TA.SharpTunnel.TunTap
         public abstract void Open();
         public abstract void Close();
 
-        public virtual void Dispose() { Close(); }
+        public virtual void Dispose()
+        {
+            try { Close(); }
+            catch { }
+        }
     }
 }
