@@ -25,18 +25,18 @@ namespace TA.SharpTunnel.TunTap
         private DeviceType _Type;
         private UnixStream _Stream;
         private bool _Persist = false;
-        private string _Device = null;
+        private string _Interface = null;
         private bool _Opened = false;
 
         public override TunTapDevice.DeviceType Type { get { return _Type; } }
         public override Stream Stream { get { return _Stream; } }
         public bool Persist { get { return _Persist; } }
-        public string Device { get { return _Device; } }
+        public string Interface { get { return _Interface; } }
 
-        public TunTapLinux(DeviceType Type, bool Persist = false, string Device = null)
+        public TunTapLinux(DeviceType Type, bool Persist = false, string Interface = null)
         {
             if (Environment.OSVersion.Platform != PlatformID.Unix)
-                throw new PlatformNotSupportedException("Only linux is supported");
+                throw new PlatformNotSupportedException("Only Linux is supported");
 
             if (!File.Exists("/dev/net/tun"))
                 throw new FileNotFoundException("/dev/net/tun not found");
@@ -44,13 +44,13 @@ namespace TA.SharpTunnel.TunTap
             if (!File.Exists("tunhelper.so"))
                 throw new FileNotFoundException("tunhelper.so not found");
 
-            if (!string.IsNullOrWhiteSpace(Device))
+            if (!string.IsNullOrWhiteSpace(Interface))
             {
-                _Device = Device.Trim();
-                if (_Device.Length > 15)
+                _Interface = Interface.Trim();
+                if (_Interface.Length > 15)
                     throw new ArgumentException("Device name too long (>15)");
             }
-            else _Device = null;
+            else _Interface = null;
 
             _Type = Type;
             _Persist = Persist;
@@ -62,8 +62,8 @@ namespace TA.SharpTunnel.TunTap
                 throw new InvalidOperationException("Already opened");
 
             StringBuilder dev_sb = new StringBuilder(IFNAMSIZ);
-            if (_Device != null)
-                dev_sb.Append(_Device);
+            if (_Interface != null)
+                dev_sb.Append(_Interface);
 
             int flags = 0;
             if (_Type == DeviceType.TUN)
@@ -87,7 +87,7 @@ namespace TA.SharpTunnel.TunTap
             if (err != 0)
                 throw new UnixIOException("ioctl(TUNSETPERSIST) failed (" + err + ")");
 
-            _Device = dev_sb.ToString();
+            _Interface = dev_sb.ToString();
             _Stream = new UnixStream(fd_or_errcode);
             _Opened = true;
         }
@@ -98,6 +98,7 @@ namespace TA.SharpTunnel.TunTap
                 throw new InvalidOperationException("Not opened");
 
             _Stream.Close();
+            _Stream.Dispose();
             _Stream = null;
 
             _Opened = false;
