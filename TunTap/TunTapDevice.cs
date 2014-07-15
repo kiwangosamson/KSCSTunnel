@@ -7,6 +7,7 @@ namespace TA.SharpTunnel.TunTap
     {
         public enum DeviceType : int { TUN = 1, TAP }
 
+        public abstract string Interface { get; }
         public abstract DeviceType Type { get; }
         public abstract Stream Stream { get; }
 

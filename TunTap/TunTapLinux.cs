@@ -28,10 +28,10 @@ namespace TA.SharpTunnel.TunTap
         private string _Interface = null;
         private bool _Opened = false;
 
+        public override string Interface { get { return _Interface; } }
         public override TunTapDevice.DeviceType Type { get { return _Type; } }
         public override Stream Stream { get { return _Stream; } }
         public bool Persist { get { return _Persist; } }
-        public string Interface { get { return _Interface; } }
 
         public TunTapLinux(DeviceType Type, bool Persist = false, string Interface = null)
         {
@@ -47,7 +47,7 @@ namespace TA.SharpTunnel.TunTap
             if (!string.IsNullOrWhiteSpace(Interface))
             {
                 _Interface = Interface.Trim();
-                if (_Interface.Length > 15)
+                if (_Interface.Length > 15) //15 or 16 limit? 15 because of CString \0 at the end?
                     throw new ArgumentException("Device name too long (>15)");
             }
             else _Interface = null;

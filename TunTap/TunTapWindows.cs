@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -31,16 +30,18 @@ namespace TA.SharpTunnel.TunTap
                 var _Guids = new List<Guid>();
                 using (RegistryKey regAdapters = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", false))
                     foreach (string subKey in regAdapters.GetSubKeyNames())
-                        using (RegistryKey regAdapter = regAdapters.OpenSubKey(subKey))
-                        {
-                            string componentId = regAdapter.GetValue("ComponentId").ToString();
-                            if (componentId != null)
-                                if (componentId == "tap0801")
-                                {
-                                    string sGuid = regAdapter.GetValue("NetCfgInstanceId").ToString();
-                                    _Guids.Add(new Guid(sGuid));
-                                }
-                        }
+                		try {
+	                        using (RegistryKey regAdapter = regAdapters.OpenSubKey(subKey))
+	                        {
+	                            string componentId = regAdapter.GetValue("ComponentId").ToString();
+	                            if (componentId != null)
+	                                if (componentId == "tap0801")
+	                                {
+	                                    string sGuid = regAdapter.GetValue("NetCfgInstanceId").ToString();
+	                                    _Guids.Add(new Guid(sGuid));
+	                                }
+	                        }
+                		} catch { }
 
                 var _Adapters = new Dictionary<string, Guid>(_Guids.Count);
                 foreach (Guid guid in _Guids)
@@ -59,19 +60,45 @@ namespace TA.SharpTunnel.TunTap
         private SafeFileHandle _Handle;
         private FileStream _Stream;
         private bool _Opened = false;
+        private string _Interface = null;
         private string _DevicePath = null;
 
+        public override string Interface { get { return _Interface; } }
         public override TunTapDevice.DeviceType Type { get { return DeviceType.TUN; } } //TODO Implement TAP
         public override Stream Stream { get { return _Stream; } }
 
-        public TunTapWindows(Guid Guid) { Init(Guid); }
-        public TunTapWindows(string Interface) { Init(Interfaces[Interface]); }
+        public TunTapWindows()
+        {
+        	var interfaces = Interfaces;
+        	if (interfaces.Count > 0)
+        		foreach (var intf in interfaces)
+        		{
+        			Init(intf.Value, intf.Key);
+        			break;
+        		}
+        	else throw new FileNotFoundException("No interfaces found");
+        }
+        
+        public TunTapWindows(string Interface) { Init(Interfaces[Interface], Interface); }
+        
+        public TunTapWindows(Guid Guid)
+        {
+        	var interfaces = Interfaces;
+        	foreach (var intf in interfaces)
+        		if (intf.Value == Guid)
+	        	{
+        			Init(Guid, intf.Key);
+        			return;
+	        	}
+        	throw new FileNotFoundException("Interface not found");
+        }
 
-        private void Init(Guid guid)
+        private void Init(Guid guid, string name)
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                 throw new PlatformNotSupportedException("Only Windows is supported");
 
+            _Interface = name;
             _DevicePath = "\\\\.\\Global\\" + guid.ToString("B") + ".tap";
         }
 
