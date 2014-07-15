@@ -40,6 +40,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Certificates\CertificateChecker.cs" />
+    <Compile Include="Certificates\DistinguishedNameParser.cs" />
+    <Compile Include="Certificates\FingerprintStore.cs" />
     <Compile Include="ModuleBaseClasses\Authenticator.cs" />
     <Compile Include="PluginLoader.cs" />
     <Compile Include="Program.cs" />
