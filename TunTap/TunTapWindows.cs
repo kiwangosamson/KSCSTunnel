@@ -35,7 +35,7 @@ namespace TA.SharpTunnel.TunTap
 	                        {
 	                            string componentId = regAdapter.GetValue("ComponentId").ToString();
 	                            if (componentId != null)
-	                                if (componentId == "tap0801")
+	                            	if ((componentId == "tap0801") || (componentId == "tap0901"))
 	                                {
 	                                    string sGuid = regAdapter.GetValue("NetCfgInstanceId").ToString();
 	                                    _Guids.Add(new Guid(sGuid));
@@ -57,6 +57,7 @@ namespace TA.SharpTunnel.TunTap
             }
         }
 
+        private DeviceType _Type;
         private SafeFileHandle _Handle;
         private FileStream _Stream;
         private bool _Opened = false;
@@ -64,42 +65,43 @@ namespace TA.SharpTunnel.TunTap
         private string _DevicePath = null;
 
         public override string Interface { get { return _Interface; } }
-        public override TunTapDevice.DeviceType Type { get { return DeviceType.TUN; } } //TODO Implement TAP
+        public override TunTapDevice.DeviceType Type { get { return _Type; } }
         public override Stream Stream { get { return _Stream; } }
 
-        public TunTapWindows()
+        public TunTapWindows(DeviceType Type)
         {
         	var interfaces = Interfaces;
         	if (interfaces.Count > 0)
         		foreach (var intf in interfaces)
         		{
-        			Init(intf.Value, intf.Key);
+        			Init(Type, intf.Value, intf.Key);
         			break;
         		}
         	else throw new FileNotFoundException("No interfaces found");
         }
         
-        public TunTapWindows(string Interface) { Init(Interfaces[Interface], Interface); }
+        public TunTapWindows(DeviceType Type, string Interface) { Init(Type, Interfaces[Interface], Interface); }
         
-        public TunTapWindows(Guid Guid)
+        public TunTapWindows(DeviceType Type, Guid Guid)
         {
         	var interfaces = Interfaces;
         	foreach (var intf in interfaces)
         		if (intf.Value == Guid)
 	        	{
-        			Init(Guid, intf.Key);
+        			Init(Type, Guid, intf.Key);
         			return;
 	        	}
         	throw new FileNotFoundException("Interface not found");
         }
 
-        private void Init(Guid guid, string name)
+        private void Init(DeviceType type, Guid guid, string name)
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                 throw new PlatformNotSupportedException("Only Windows is supported");
 
+            _Type = type;
             _Interface = name;
-            _DevicePath = "\\\\.\\Global\\" + guid.ToString("B") + ".tap";
+            _DevicePath = @"\\.\Global\" + guid.ToString("B") + ".tap";
         }
 
         public override void Open()
@@ -108,8 +110,7 @@ namespace TA.SharpTunnel.TunTap
                 throw new InvalidOperationException("Already opened");
 
             int len = 0;
-            //Use FILE_FLAG_OVERLAPPED for async
-            IntPtr ptr = CreateFile(_DevicePath, FileAccess.ReadWrite, FileShare.ReadWrite, 0, FileMode.Open, FILE_ATTRIBUTE_SYSTEM, IntPtr.Zero);
+            IntPtr ptr = CreateFile(_DevicePath, FileAccess.ReadWrite, FileShare.ReadWrite, 0, FileMode.Open, FILE_ATTRIBUTE_SYSTEM | FILE_FLAG_OVERLAPPED, IntPtr.Zero);
 
             IntPtr pstatus = Marshal.AllocHGlobal(4);
             try
@@ -132,7 +133,7 @@ namespace TA.SharpTunnel.TunTap
             finally { Marshal.FreeHGlobal(ptun); }
 
             _Handle = new SafeFileHandle(ptr, true);
-            _Stream = new FileStream(_Handle, FileAccess.ReadWrite); //Set isAsync = true when FILE_FLAG_OVERLAPPED is set
+            _Stream = new FileStream(_Handle, FileAccess.ReadWrite, 4096, true);
             _Opened = true;
         }
 
@@ -149,8 +150,6 @@ namespace TA.SharpTunnel.TunTap
             _Opened = false;
         }
 
-        private static uint CTL_CODE(uint DeviceType, uint Function, uint Method, uint Access) { return ((DeviceType << 16) | (Access << 14) | (Function << 2) | Method); }
-
-        private static uint TAP_CONTROL_CODE(uint request, uint method) { return CTL_CODE(FILE_DEVICE_UNKNOWN, request, method, FILE_ANY_ACCESS); }
+        private static uint TAP_CONTROL_CODE(uint request, uint method) { return ((FILE_DEVICE_UNKNOWN << 16) | (FILE_ANY_ACCESS << 14) | (request << 2) | method); }
     }
 }
