@@ -4,11 +4,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using TA.SharpTunnel.Certificates;
 
 namespace TA.SharpTunnel.Connections
 {
 	public class ClientConnection : Connection
 	{
+        private FingerprintStore _FPStore = null;
 		private IPEndPoint _EndPoint = null;
 		private TcpClient _Client = new TcpClient();
 		private SslStream _Stream = null;
@@ -16,8 +18,12 @@ namespace TA.SharpTunnel.Connections
 		
 		public override Stream Stream { get { return _Stream; } }
 		public override IPEndPoint EndPoint { get { return _EndPoint; } }
-		
-		public ClientConnection(IPEndPoint EndPoint) { _EndPoint = EndPoint; }
+
+        public ClientConnection(IPEndPoint EndPoint, FingerprintStore FingerprintStore)
+        {
+            _EndPoint = EndPoint;
+            _FPStore = FingerprintStore;
+        }
 		
 		public override void Connect()
 		{
@@ -36,8 +42,10 @@ namespace TA.SharpTunnel.Connections
 		
 		private bool CheckCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			//TODO Implement certificate check
-			return true;
+            X509Certificate2 cert2 = new X509Certificate2(certificate);
+            CertificateChecker checker = new CertificateChecker(cert2, _FPStore);
+
+            return checker.CheckFingerprintStore();
 		}
 		
 		public override void Disconnect()
