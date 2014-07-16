@@ -1,13 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace TA.SharpTunnel.Connection
+namespace TA.SharpTunnel.Connections
 {
-	public class ServerConnection
+	public class ServerConnection : Connection
 	{
 		private X509Certificate _Certificate = null;
 		private IPEndPoint _EndPoint = null;
@@ -17,8 +18,8 @@ namespace TA.SharpTunnel.Connection
 		private TcpListener _Listener = null;
 		private bool _Started = false;
 		
-		public SslStream Stream { get { return _Stream; } }
-		public IPEndPoint EndPoint { get { return _EndPoint; } }
+		public override Stream Stream { get { return _Stream; } }
+		public override IPEndPoint EndPoint { get { return _EndPoint; } }
 		
 		public ServerConnection(IPEndPoint LocalEndPoint, X509Certificate Certificate)
 		{
@@ -36,7 +37,7 @@ namespace TA.SharpTunnel.Connection
 			_Started = true;
 		}
 		
-		public void Connect()
+		public override void Connect()
 		{
 			if (!_Started)
 				throw new NotImplementedException("Listener not running");
@@ -47,14 +48,14 @@ namespace TA.SharpTunnel.Connection
 			_Client = _Listener.AcceptTcpClient();
 			
 			NetworkStream ns = _Client.GetStream();
-			_Stream = new SslStream(ns, false, (object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors err) => { return true; });
+			_Stream = new SslStream(ns, false, (object sndr, X509Certificate cert, X509Chain chain, SslPolicyErrors err) => true);
 			
 			_Stream.AuthenticateAsServer(_Certificate, false, SslProtocols.Tls12, false);
 			
 			_Connected = true;
 		}
 		
-		public void Disconnect()
+		public override void Disconnect()
 		{
 			if (!_Connected)
 				throw new InvalidOperationException("Not connected");
@@ -71,19 +72,14 @@ namespace TA.SharpTunnel.Connection
 			if (!_Started)
 				throw new InvalidOperationException("Not started");
 			
-			_Stream.Dispose();
-			_Stream = null;
-			
-			_Client.Close();
-			_Client = null;
-			
 			_Listener.Stop();
 			_Started = false;
 		}
 		
-		public void Dispose()
+		public override void Dispose()
 		{
-			try { Disconnect(); }
+			base.Dispose();
+			try { Stop(); }
 			catch { }
 		}
 	}

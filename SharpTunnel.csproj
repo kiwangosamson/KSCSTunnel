@@ -43,8 +43,9 @@
     <Compile Include="Certificates\CertificateChecker.cs" />
     <Compile Include="Certificates\DistinguishedNameParser.cs" />
     <Compile Include="Certificates\FingerprintStore.cs" />
-    <Compile Include="Connection\ClientConnection.cs" />
-    <Compile Include="Connection\ServerConnection.cs" />
+    <Compile Include="Connections\ClientConnection.cs" />
+    <Compile Include="Connections\Connection.cs" />
+    <Compile Include="Connections\ServerConnection.cs" />
     <Compile Include="ModuleBaseClasses\Authenticator.cs" />
     <Compile Include="PluginLoader.cs" />
     <Compile Include="Program.cs" />
@@ -60,7 +61,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Connection" />
+    <Folder Include="Connections" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,24 +1,25 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
-namespace TA.SharpTunnel.Connection
+namespace TA.SharpTunnel.Connections
 {
-	public class ClientConnection : IDisposable
+	public class ClientConnection : Connection
 	{
 		private IPEndPoint _EndPoint = null;
 		private TcpClient _Client = new TcpClient();
 		private SslStream _Stream = null;
 		private bool _Connected = false;
 		
-		public SslStream Stream { get { return _Stream; } }
-		public IPEndPoint EndPoint { get { return _EndPoint; } }
+		public override Stream Stream { get { return _Stream; } }
+		public override IPEndPoint EndPoint { get { return _EndPoint; } }
 		
 		public ClientConnection(IPEndPoint EndPoint) { _EndPoint = EndPoint; }
 		
-		public void Connect()
+		public override void Connect()
 		{
 			if (_Connected)
 				throw new InvalidOperationException("Already connected");
@@ -39,7 +40,7 @@ namespace TA.SharpTunnel.Connection
 			return true;
 		}
 		
-		public void Disconnect()
+		public override void Disconnect()
 		{
 			if (!_Connected)
 				throw new InvalidOperationException("Not connected");
@@ -49,12 +50,6 @@ namespace TA.SharpTunnel.Connection
 			
 			_Client.Close();
 			_Client = null;
-		}
-		
-		public void Dispose()
-		{
-			try { Disconnect(); }
-			catch { }
 		}
 	}
 }
