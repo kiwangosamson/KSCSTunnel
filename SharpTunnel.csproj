@@ -47,6 +47,7 @@
     <Compile Include="Connections\Connection.cs" />
     <Compile Include="Connections\ServerConnection.cs" />
     <Compile Include="ModuleBaseClasses\Authenticator.cs" />
+    <Compile Include="Packet.cs" />
     <Compile Include="PluginLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="TunTap\TunTapDevice.cs" />
     <Compile Include="TunTap\TunTapLinux.cs" />
     <Compile Include="TunTap\TunTapWindows.cs" />
+    <Compile Include="VpnWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="tunhelper.so">
