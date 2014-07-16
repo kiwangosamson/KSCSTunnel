@@ -141,11 +141,9 @@ namespace TA.SharpTunnel.TunTap
             if (!_Opened)
                 throw new InvalidOperationException("Not opened");
 
-            _Stream.Close();
             _Stream.Dispose();
             _Stream = null;
 
-            _Handle.Close();
             _Handle.Dispose();
 
             _Opened = false;
