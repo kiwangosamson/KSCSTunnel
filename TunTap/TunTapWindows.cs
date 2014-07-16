@@ -30,18 +30,20 @@ namespace TA.SharpTunnel.TunTap
                 var _Guids = new List<Guid>();
                 using (RegistryKey regAdapters = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", false))
                     foreach (string subKey in regAdapters.GetSubKeyNames())
-                		try {
-	                        using (RegistryKey regAdapter = regAdapters.OpenSubKey(subKey))
-	                        {
-	                            string componentId = regAdapter.GetValue("ComponentId").ToString();
-	                            if (componentId != null)
-	                            	if ((componentId == "tap0801") || (componentId == "tap0901"))
-	                                {
-	                                    string sGuid = regAdapter.GetValue("NetCfgInstanceId").ToString();
-	                                    _Guids.Add(new Guid(sGuid));
-	                                }
-	                        }
-                		} catch { }
+                        try
+                        {
+                            using (RegistryKey regAdapter = regAdapters.OpenSubKey(subKey))
+                            {
+                                string componentId = regAdapter.GetValue("ComponentId").ToString();
+                                if (componentId != null)
+                                    if ((componentId == "tap0801") || (componentId == "tap0901"))
+                                    {
+                                        string sGuid = regAdapter.GetValue("NetCfgInstanceId").ToString();
+                                        _Guids.Add(new Guid(sGuid));
+                                    }
+                            }
+                        }
+                        catch { }
 
                 var _Adapters = new Dictionary<string, Guid>(_Guids.Count);
                 foreach (Guid guid in _Guids)
@@ -70,28 +72,28 @@ namespace TA.SharpTunnel.TunTap
 
         public TunTapWindows(DeviceType Type)
         {
-        	var interfaces = Interfaces;
-        	if (interfaces.Count > 0)
-        		foreach (var intf in interfaces)
-        		{
-        			Init(Type, intf.Value, intf.Key);
-        			break;
-        		}
-        	else throw new FileNotFoundException("No interfaces found");
+            var interfaces = Interfaces;
+            if (interfaces.Count > 0)
+                foreach (var intf in interfaces)
+                {
+                    Init(Type, intf.Value, intf.Key);
+                    break;
+                }
+            else throw new FileNotFoundException("No interfaces found");
         }
-        
+
         public TunTapWindows(DeviceType Type, string Interface) { Init(Type, Interfaces[Interface], Interface); }
-        
+
         public TunTapWindows(DeviceType Type, Guid Guid)
         {
-        	var interfaces = Interfaces;
-        	foreach (var intf in interfaces)
-        		if (intf.Value == Guid)
-	        	{
-        			Init(Type, Guid, intf.Key);
-        			return;
-	        	}
-        	throw new FileNotFoundException("Interface not found");
+            var interfaces = Interfaces;
+            foreach (var intf in interfaces)
+                if (intf.Value == Guid)
+                {
+                    Init(Type, Guid, intf.Key);
+                    return;
+                }
+            throw new FileNotFoundException("Interface not found");
         }
 
         private void Init(DeviceType type, Guid guid, string name)
