@@ -6,9 +6,9 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using TA.SharpTunnel.Certificates;
 
-namespace TA.SharpTunnel.Connections
+namespace TA.SharpTunnel.Connection
 {
-    public class ClientConnection : Connection
+    public class ClientConnection : NetConnection
     {
         private FingerprintStore _FPStore = null;
         private IPEndPoint _EndPoint = null;

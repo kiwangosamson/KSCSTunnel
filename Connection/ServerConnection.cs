@@ -6,9 +6,9 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace TA.SharpTunnel.Connections
+namespace TA.SharpTunnel.Connection
 {
-	public class ServerConnection : Connection
+	public class ServerConnection : NetConnection
 	{
 		private X509Certificate _Certificate = null;
 		private IPEndPoint _EndPoint = null;

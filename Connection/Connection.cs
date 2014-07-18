@@ -2,9 +2,9 @@
 using System.IO;
 using System.Net;
 
-namespace TA.SharpTunnel.Connections
+namespace TA.SharpTunnel.Connection
 {
-	public abstract class Connection : IDisposable
+	public abstract class NetConnection : IDisposable
 	{
 		public abstract Stream Stream { get; }
 		public abstract IPEndPoint EndPoint { get; }
