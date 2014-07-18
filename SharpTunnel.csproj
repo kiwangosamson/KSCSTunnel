@@ -40,13 +40,14 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authentication\Authenticator.cs" />
+    <Compile Include="Authentication\YesAuthenticator.cs" />
     <Compile Include="Certificates\CertificateChecker.cs" />
     <Compile Include="Certificates\DistinguishedNameParser.cs" />
     <Compile Include="Certificates\FingerprintStore.cs" />
     <Compile Include="Connections\ClientConnection.cs" />
     <Compile Include="Connections\Connection.cs" />
     <Compile Include="Connections\ServerConnection.cs" />
-    <Compile Include="ModuleBaseClasses\Authenticator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReaderWriter.cs" />
