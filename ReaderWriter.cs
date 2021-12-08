@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace TA.KSCSTunnel
+namespace TA.SharpTunnel
 {
     public class ReaderWriter : IDisposable
     {
