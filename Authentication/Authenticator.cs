@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace TA.KSCSTunnel.Authentication
+namespace TA.SharpTunnel.Authentication
 {
     public abstract class Authenticator : IDisposable
     {
